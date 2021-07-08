@@ -1,18 +1,41 @@
 <template>
   <div class="home">
-    <img alt="Vue logo" src="../assets/logo.png" />
-    <HelloWorld msg="Welcome to Your Vue.js + TypeScript App" />
+    <Card
+      v-for="(product, index) in products"
+      :key="index"
+      :product="product"
+    />
   </div>
 </template>
 
 <script lang="ts">
-import { Options, Vue } from "vue-class-component";
-import HelloWorld from "@/components/HelloWorld.vue"; // @ is an alias to /src
-
-@Options({
+import { ref } from "vue";
+import { onMounted } from "@vue/runtime-core";
+import Card from "@/components/Card.vue";
+import ProductService from "@/services/ProductService";
+export default {
   components: {
-    HelloWorld,
+    Card,
   },
-})
-export default class Home extends Vue {}
+  setup() {
+    const products = ref([]);
+    const loadProducts = async () => {
+      try {
+        const response = await ProductService.getAll();
+        if (response) {
+          products.value = response.data;
+          console.log(products.value[0]);
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    onMounted(loadProducts);
+
+    return {
+      products,
+      loadProducts,
+    };
+  },
+};
 </script>
